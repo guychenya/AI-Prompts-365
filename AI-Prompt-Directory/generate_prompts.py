@@ -42,8 +42,8 @@ def extract_prompts_from_csv(csv_path, repo_name):
 
 def extract_prompts_from_md(md_path, repo_name):
     """Extract prompts from Markdown files"""
-    # Skip README files
-    if md_path.stem.lower() == 'readme':
+    # Skip README, LICENSE, CONTRIBUTING files
+    if md_path.stem.lower() in ['readme', 'license', 'contributing']:
         return []
 
     prompts = []
@@ -53,18 +53,6 @@ def extract_prompts_from_md(md_path, repo_name):
 
         # Extract title from filename or first heading
         title = md_path.stem.replace('-', ' ').replace('_', ' ').title()
-
-        # Try to extract first paragraph as description
-        lines = content.split('\n')
-        description = ""
-        for line in lines:
-            line = line.strip()
-            if line and not line.startswith('#') and not line.startswith('```'):
-                description = clean_text(line)
-                break
-
-        if not description:
-            description = f"Prompt template for {title}"
 
         prompts.append({
             'title': title,
@@ -173,24 +161,30 @@ def scan_repositories():
             continue
 
         repo_name = repo_mappings.get(repo_path.name, repo_path.name)
+        
+        # Only scan folders named "prompts"
+        prompts_dir = repo_path / "prompts"
+        if not prompts_dir.is_dir():
+            continue
+
         print(f"Processing repository: {repo_name}")
 
         # Scan for different file types
-        for file_path in repo_path.rglob('*'):
+        for file_path in prompts_dir.rglob('*'):
             if file_path.is_file():
                 # Skip non-text files and licenses
-                if file_path.suffix.lower() not in ['.csv', '.md', '.txt'] or 'license' in file_path.name.lower():
+                if file_path.suffix.lower() not in ['.csv', '.md', '.txt'] or file_path.stem.lower() in ['readme', 'license', 'contributing']:
                     continue
 
                 suffix = file_path.suffix.lower()
 
-                if suffix == '.csv' and 'prompt' in file_path.name.lower():
+                if suffix == '.csv':
                     prompts = extract_prompts_from_csv(file_path, repo_name)
                     all_prompts.extend(prompts)
                 elif suffix == '.md':
                     prompts = extract_prompts_from_md(file_path, repo_name)
                     all_prompts.extend(prompts)
-                elif suffix == '.txt' and 'prompt' in file_path.name.lower():
+                elif suffix == '.txt':
                     prompts = extract_prompts_from_txt(file_path, repo_name)
                     all_prompts.extend(prompts)
 
