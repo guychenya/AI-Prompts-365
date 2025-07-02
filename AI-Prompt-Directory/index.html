@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Prompt Directory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-icon {
+            font-size: 1.8rem;
+        }
+
+        .prompt-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .prompt-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .prompt-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .prompt-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .prompt-source {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Prompt Directory</h1>
+            <p>Curated collection of AI prompts from top repositories</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalPrompts">0</span>
+                <span class="stat-label">Total Prompts</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalCategories">0</span>
+                <span class="stat-label">Categories</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalRepos">7</span>
+                <span class="stat-label">Repositories</span>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-box" placeholder="Search prompts by keyword, category, or description..." id="searchInput">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="filters" id="filtersContainer">
+            <button class="filter-btn active" data-category="all">All Categories</button>
+        </div>
+
+        <div class="categories-grid" id="categoriesGrid">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <div class="footer">
+            <p>Powered by open-source AI prompt repositories • Built with ❤️ for the AI community</p>
+        </div>
+    </div>
+
+    <script>
+        // This will be populated by the Python script
+        let promptsData = {};
+        
+        function initializeApp() {
+            loadPrompts();
+            setupEventListeners();
+        }
+
+        function loadPrompts() {
+            // Load prompts from generated JSON file
+            fetch('prompts_data.json')
+                .then(response => response.json())
+                .then(data => {
+                    promptsData = data;
+                    updateStats();
+                    renderCategories();
+                    renderFilters();
+                })
+                .catch(error => {
+                    console.error('Error loading prompts:', error);
+                    // Fallback to sample data
+                    loadSampleData();
+                });
+        }
+
+        function loadSampleData() {
+            promptsData = {
+                "Development Tools": {
+                    icon: "⚒️",
+                    prompts: [
+                        {
+                            title: "Cursor Agent",
+                            description: "Advanced AI coding assistant with memory and context awareness",
+                            source: "system-prompts-and-models-of-ai-tools"
+                        },
+                        {
+                            title: "VSCode Agent",
+                            description: "Intelligent code completion and debugging assistant",
+                            source: "system-prompts-and-models-of-ai-tools"
+                        }
+                    ]
+                },
+                "General Purpose": {
+                    icon: "🧠",
+                    prompts: [
+                        {
+                            title: "Linux Terminal",
+                            description: "Act as a Linux terminal, respond only with terminal output",
+                            source: "awesome-chatgpt-prompts"
+                        },
+                        {
+                            title: "English Translator",
+                            description: "Translate and improve text to elegant English",
+                            source: "awesome-chatgpt-prompts"
+                        }
+                    ]
+                },
+                "Software Development": {
+                    icon: "💻",
+                    prompts: [
+                        {
+                            title: "Browser Extension Development",
+                            description: "Comprehensive guide for building browser extensions",
+                            source: "AI-Prompt-Database"
+                        },
+                        {
+                            title: "Cross Platform App Development",
+                            description: "Strategies for multi-platform application development",
+                            source: "AI-Prompt-Database"
+                        }
+                    ]
+                }
+            };
+            updateStats();
+            renderCategories();
+            renderFilters();
+        }
+
+        function updateStats() {
+            const totalPrompts = Object.values(promptsData).reduce((sum, category) => sum + category.prompts.length, 0);
+            const totalCategories = Object.keys(promptsData).length;
+            
+            document.getElementById('totalPrompts').textContent = totalPrompts;
+            document.getElementById('totalCategories').textContent = totalCategories;
+        }
+
+        function renderCategories(filter = 'all', searchTerm = '') {
+            const grid = document.getElementById('categoriesGrid');
+            grid.innerHTML = '';
+
+            Object.entries(promptsData).forEach(([categoryName, categoryData]) => {
+                if (filter !== 'all' && categoryName !== filter) return;
+
+                const filteredPrompts = categoryData.prompts.filter(prompt => {
+                    if (!searchTerm) return true;
+                    const searchLower = searchTerm.toLowerCase();
+                    return prompt.title.toLowerCase().includes(searchLower) ||
+                           prompt.description.toLowerCase().includes(searchLower) ||
+                           categoryName.toLowerCase().includes(searchLower);
+                });
+
+                if (filteredPrompts.length === 0) return;
+
+                const categoryCard = document.createElement('div');
+                categoryCard.className = 'category-card';
+                categoryCard.innerHTML = `
+                    <div class="category-title">
+                        <span class="category-icon">${categoryData.icon || '📁'}</span>
+                        ${categoryName}
+                    </div>
+                    ${filteredPrompts.map(prompt => `
+                        <div class="prompt-item">
+                            <div class="prompt-title">${prompt.title}</div>
+                            <div class="prompt-description">${prompt.description}</div>
+                            <div class="prompt-source">Source: ${prompt.source}</div>
+                        </div>
+                    `).join('')}
+                `;
+                grid.appendChild(categoryCard);
+            });
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filtersContainer');
+            const categories = Object.keys(promptsData);
+            
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = category;
+                btn.dataset.category = category;
+                container.appendChild(btn);
+            });
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                const activeFilter = document.querySelector('.filter-btn.active').dataset.category;
+                renderCategories(activeFilter, searchTerm);
+            });
+
+            // Filter functionality
+            document.getElementById('filtersContainer').addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const category = e.target.dataset.category;
+                    const searchTerm = document.getElementById('searchInput').value;
+                    renderCategories(category, searchTerm);
+                }
+            });
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>

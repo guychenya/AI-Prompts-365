@@ -1,0 +1,31 @@
+[build]
+  # No build command needed for static HTML site
+  command = ""
+  # Publish the root directory
+  publish = "AI-Prompt-Directory"
+
+[build.environment]
+  # Disable Jekyll processing since this is a pure HTML site
+  JEKYLL_ENV = "production"
+
+# Custom headers for better performance
+[[headers]]
+  for = "*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Redirect rules (if needed)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

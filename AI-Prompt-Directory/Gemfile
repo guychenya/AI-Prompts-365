@@ -1,0 +1,6 @@
+ruby '3.2.2'
+
+# Jekyll and plugins
+gem 'jekyll'
+gem 'jekyll-github-metadata', '~> 2.15'
+gem "liquid", "~> 3.0"
